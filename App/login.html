@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Recicle+ - Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1db954, #1aa34a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: #f4fef5;
+      border-radius: 20px;
+      padding: 30px 30px 40px 30px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      animation: fadeInUp 1s ease;
+      text-align: center;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .flag {
+      width: 100%;
+      height: auto;
+      max-height: 80px;
+      margin-top: 15px; /* troca para top para dar espaçamento acima */
+      object-fit: contain;
+    }
+
+    .icon-circle {
+      background: #fff; /* fundo branco */
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .icon-circle img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: #1db954;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 15px;
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      padding-left: 40px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 14px;
+      background: #fff url('https://img.icons8.com/ios-filled/50/user.png') no-repeat 10px center;
+      background-size: 20px;
+    }
+
+    .form-group input[type="password"] {
+      background-image: url('https://img.icons8.com/ios-filled/50/lock.png');
+    }
+
+    .remember {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+
+    .remember input {
+      margin-right: 5px;
+    }
+
+    .remember label {
+      display: flex;
+      align-items: center;
+    }
+
+    .remember a {
+      color: #1db954;
+      text-decoration: none;
+    }
+
+    button {
+      width: 100%;
+      background: #1db954;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #17a44d;
+    }
+
+    .cadastro {
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .cadastro a {
+      color: #1db954;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    .cadastro a:hover {
+      color: #148c3c;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 20px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Logo Recicle+ em círculo -->
+    <div class="icon-circle">
+      <img src="logo.jpg" alt="Logo Recicle+" />
+    </div>
+
+    <!-- Bandeira de Itarema -->
+    <img src="itarema.jpg" alt="Bandeira de Itarema" class="flag" />
+
+    <h1>RECICLE+</h1>
+    <p><strong style="color: #1db954;">Reciclagem Sustentável!</strong><br>Faça login para continuar ajudando o meio ambiente</p>
+
+    <form onsubmit="login(event)">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="*************" required />
+      </div>
+
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="senha" placeholder="********" required />
+      </div>
+
+      <div class="remember">
+        <label><input type="checkbox" id="lembrar" /> Lembrar de mim</label>
+      </div>
+
+      <button type="submit"><strong>Entrar no App</strong></button>
+    </form>
+
+    <div class="cadastro">
+      Não tem conta? <a href="cadastro.html">Cadastre-se gratuitamente</a>
+    </div>
+  </div>
+
+  <script>
+    function login(event) {
+      event.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const senha = document.getElementById("senha").value;
+      const lembrar = document.getElementById("lembrar").checked;
+
+      const user = JSON.parse(localStorage.getItem(email));
+
+      if (user && user.senha === senha) {
+        localStorage.setItem("usuarioLogado", email);
+        window.location.href = "menu.html";
+      } else {
+        alert("Email ou senha incorretos!");
+      }
+    }
+  </script>
+</body>
+</html>

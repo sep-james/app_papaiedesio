@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tela do Coletor - Ecoltarema</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+body {
+  min-height: 100vh; background: linear-gradient(135deg, #1aa34a, #14833b);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.container {
+  background: #f4fef5; border-radius: 20px; padding: 20px 30px 40px 30px;
+  max-width: 550px; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  text-align: center; animation: fadeInUp 1s ease;
+}
+@keyframes fadeInUp { from {opacity:0; transform:translateY(30px);} to {opacity:1; transform:translateY(0);} }
+h1 { font-weight: 600; color: #222; margin-bottom: 15px; font-size: 28px; }
+#usuarioInfo { color: #444; font-size: 16px; margin-bottom: 20px; word-wrap: break-word; }
+.doacao {
+  border: 1px solid #ccc; border-radius: 12px; padding: 12px; margin: 10px 0;
+  text-align: left; background: white;
+}
+.doacao strong { color: #1aa34a; }
+button {
+  background: #1db954; color: white; border: none; border-radius: 10px;
+  padding: 10px 16px; font-size: 14px; font-weight: 600;
+  cursor: pointer; margin: 5px 3px; transition: background 0.3s;
+}
+button:hover { background: #14833b; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Tela do Coletor</h1>
+  <p id="usuarioInfo">Carregando...</p>
+  <div id="listaDoacoes"></div>
+  <button onclick="irPara('menu.html')">Voltar ao Menu</button>
+</div>
+
+<script>
+let email = localStorage.getItem("usuarioLogado") || sessionStorage.getItem("usuarioLogado");
+let usuario = email ? JSON.parse(localStorage.getItem(email)) : null;
+
+if(!usuario) { window.location.href = "login.html"; }
+else { document.getElementById("usuarioInfo").innerText = `Logado como: ${usuario.email} | Tipo: ${usuario.tipo}`; }
+
+function irPara(pagina){ window.location.href = pagina; }
+
+function carregarDoacoes(){
+  let listaDiv = document.getElementById("listaDoacoes");
+  listaDiv.innerHTML = "";
+  let doacoes = JSON.parse(localStorage.getItem("doacoes"))||[];
+
+  doacoes.forEach((d, i)=>{
+    if(d.status==="Pendente" || d.status==="Aceita" || d.status==="Entregue"){
+      let div = document.createElement("div");
+      div.className = "doacao";
+      div.innerHTML = `
+        <p><strong>${d.tipo}</strong> - ${d.quantidade} ${d.tipoQuantidade}</p>
+        <p><b>Local:</b> ${d.localizacao}</p>
+        <p><b>Doador:</b> ${d.doador}</p>
+        <p><b>Status:</b> ${d.status}</p>
+      `;
+
+      // Botão para aceitar coleta
+      if(d.status==="Pendente"){
+        let btn = document.createElement("button");
+        btn.innerText = "Aceitar Coleta";
+        btn.onclick = ()=>aceitarColeta(i);
+        div.appendChild(btn);
+      }
+
+      // Botão para coletor marcar como coletada
+      if(d.status==="Aceita" && d.coletor===usuario.email){
+        let btn2 = document.createElement("button");
+        btn2.innerText = "Marcar como Coletada";
+        btn2.onclick = ()=>marcarColetada(i);
+        div.appendChild(btn2);
+      }
+
+      // Botão para coletor confirmar doação correta
+      if(d.status==="Entregue" && d.coletor===usuario.email){
+        let btn3 = document.createElement("button");
+        btn3.innerText = "Confirmar Doação Correta";
+        btn3.onclick = ()=>confirmarColetaCerta(i);
+        div.appendChild(btn3);
+      }
+
+      listaDiv.appendChild(div);
+    }
+  });
+}
+
+function aceitarColeta(i){
+  let doacoes = JSON.parse(localStorage.getItem("doacoes"))||[];
+  doacoes[i].status = "Aceita";
+  doacoes[i].coletor = usuario.email;
+  localStorage.setItem("doacoes", JSON.stringify(doacoes));
+  alert("Coleta aceita! Aguarde o doador confirmar a entrega.");
+  carregarDoacoes();
+}
+
+function marcarColetada(i){
+  let doacoes = JSON.parse(localStorage.getItem("doacoes"))||[];
+  doacoes[i].status = "Coletada";
+  localStorage.setItem("doacoes", JSON.stringify(doacoes));
+  alert("Doação marcada como coletada! Aguarde a confirmação do doador.");
+  carregarDoacoes();
+}
+
+function confirmarColetaCerta(i){
+  let doacoes = JSON.parse(localStorage.getItem("doacoes"))||[];
+  if(doacoes[i].status!=="Entregue"){ alert("O doador ainda não confirmou a entrega."); return; }
+
+  doacoes[i].status = "Finalizada";
+
+  // Pontos simples: 10 pontos por doação
+  let ranking = JSON.parse(localStorage.getItem("ranking"))||{};
+  ranking[doacoes[i].doador] = (ranking[doacoes[i].doador]||0) + 10;
+  ranking[doacoes[i].coletor] = (ranking[doacoes[i].coletor]||0) + 10;
+  localStorage.setItem("ranking", JSON.stringify(ranking));
+
+  localStorage.setItem("doacoes", JSON.stringify(doacoes));
+  alert("Coleta confirmada e pontos adicionados ao ranking!");
+  carregarDoacoes();
+}
+
+carregarDoacoes();
+</script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ecoltarema - Cadastro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1db954, #1aa34a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: #f4fef5;
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 1s ease;
+            text-align: center;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 { font-size: 22px; margin-bottom: 5px; color: #222; }
+        p { font-size: 14px; color: #666; margin-bottom: 20px; }
+        .form-group { text-align: left; margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 14px; margin-bottom: 5px; color: #333; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        .tipo {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .tipo label {
+            font-size: 14px;
+            cursor: pointer;
+        }
+        button {
+            width: 100%;
+            background: #1db954;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover { background: #17a44d; }
+        .login {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .login a {
+            color: #1db954;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        .login a:hover { color: #148c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Crie sua conta</h1>
+        <p>Cadastre-se para começar a reciclar</p>
+
+        <form onsubmit="cadastrar(event)">
+            <div class="form-group">
+                <label>Nome</label>
+                <input type="text" id="nome" placeholder="Seu nome completo" required />
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="seu@email.com" required />
+            </div>
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" id="senha" placeholder="********" required />
+            </div>
+            <div class="tipo">
+                <label><input type="radio" name="tipo" value="doador" required /> Sou Doador</label>
+                <label><input type="radio" name="tipo" value="coletor" required /> Sou Coletor</label>
+            </div>
+            <button type="submit">Cadastrar</button>
+        </form>
+
+        <div class="login">
+            Já tem conta? <a href="login.html">Faça login</a>
+        </div>
+    </div>
+
+    <script>
+        function cadastrar(event) {
+            event.preventDefault();
+
+            const nome = document.getElementById("nome").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value;
+            const tipo = document.querySelector('input[name="tipo"]:checked').value;
+
+            const usuario = { nome, senha, tipo };
+
+            // Salva usando o email como chave
+            localStorage.setItem(email, JSON.stringify(usuario));
+
+            alert("Cadastro realizado com sucesso!");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>

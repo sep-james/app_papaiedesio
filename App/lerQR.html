@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ler QR Code</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body {
+            margin: 0;
+            background: #111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            justify-content: center;
+            color: white;
+            font-family: sans-serif;
+        }
+        #reader {
+            width: 100%;
+            max-width: 400px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background: red;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: darkred;
+        }
+    </style>
+</head>
+<body>
+    <h2>Escaneie o QR Code</h2>
+    <div id="reader"></div>
+    <button id="cancelarBtn">Cancelar</button>
+
+    <script>
+        let html5QrCode = new Html5Qrcode("reader");
+
+        // Inicia câmera
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: 250 },
+            (decodedText) => {
+                localStorage.setItem("qrConfirmado", decodedText);
+                alert("QR Code lido com sucesso!");
+                html5QrCode.stop().then(() => {
+                    window.location.href = "doacaoFixa.html";
+                });
+            },
+            (errorMessage) => { /* Ignora erros */ }
+        ).catch(err => {
+            console.error("Erro ao abrir câmera:", err);
+            alert("Erro ao abrir câmera: " + err);
+        });
+
+        // Botão cancelar para parar câmera e voltar
+        document.getElementById("cancelarBtn").addEventListener("click", () => {
+            html5QrCode.stop().then(() => {
+                window.location.href = "doacaoFixa.html";
+            }).catch(err => {
+                console.error("Erro ao parar câmera:", err);
+                window.location.href = "doacaoFixa.html";
+            });
+        });
+    </script>
+</body>
+</html>

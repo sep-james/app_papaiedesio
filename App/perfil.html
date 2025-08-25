@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil - Ecoltarema</title>
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        padding: 20px;
+        margin: 0;
+        background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        color: #333;
+    }
+
+    .profile-container {
+        max-width: 400px;
+        margin: auto;
+        text-align: center;
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        animation: fadeInUp 0.6s ease;
+    }
+
+    .profile-container h2 {
+        color: #2e7d32;
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+    }
+
+    .profile-container img {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        border: 3px solid #2e7d32;
+        object-fit: cover;
+        margin-bottom: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .profile-container img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(46,125,50,0.5);
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+
+    .file-label {
+        display: inline-block;
+        padding: 10px 15px;
+        background: #2e7d32;
+        color: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-bottom: 10px;
+        transition: background 0.3s ease;
+    }
+
+    .file-label:hover {
+        background: #1b4d23;
+    }
+
+    input[type="text"] {
+        padding: 12px;
+        margin-top: 10px;
+        width: 90%;
+        max-width: 300px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+        border-color: #2e7d32;
+        box-shadow: 0 0 5px rgba(46,125,50,0.5);
+        outline: none;
+    }
+
+    .btn {
+        padding: 12px;
+        margin-top: 15px;
+        width: 90%;
+        max-width: 300px;
+        border-radius: 8px;
+        border: none;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-save {
+        background-color: #2e7d32;
+        color: white;
+    }
+
+    .btn-save:hover {
+        background-color: #1b4d23;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn-back {
+        background-color: #555;
+        color: white;
+    }
+
+    .btn-back:hover {
+        background-color: #333;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    @keyframes fadeInUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+</style>
+</head>
+<body>
+
+<div class="profile-container">
+    <h2>👤 Editar Perfil</h2>
+    <img id="previewImg" src="perfil.jpg" alt="Foto de Perfil">
+    <br>
+    <label for="fotoInput" class="file-label">📷 Escolher Foto</label>
+    <input type="file" id="fotoInput" accept="image/*"><br>
+    <input type="text" id="nomeInput" placeholder="Digite seu nome"><br>
+    <button class="btn btn-save" onclick="salvarPerfil()">💾 Salvar</button>
+    <button class="btn btn-back" onclick="window.location.href='menu.html'">⬅ Voltar ao Menu</button>
+</div>
+
+<script>
+    const fotoInput = document.getElementById('fotoInput');
+    const previewImg = document.getElementById('previewImg');
+    const nomeInput = document.getElementById('nomeInput');
+
+    // Mostrar preview da nova imagem
+    fotoInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Carregar dados do usuário logado
+    window.onload = function () {
+        const emailLogado = localStorage.getItem("usuarioLogado");
+        if (!emailLogado) {
+            alert("Usuário não logado!");
+            window.location.href = "login.html";
+            return;
+        }
+
+        const user = JSON.parse(localStorage.getItem(emailLogado));
+        if (!user) {
+            alert("Dados do usuário não encontrados!");
+            window.location.href = "login.html";
+            return;
+        }
+
+        if (user.nome) nomeInput.value = user.nome;
+        if (user.foto) previewImg.src = user.foto;
+    }
+
+    // Salvar dados no objeto do usuário logado
+    function salvarPerfil() {
+        const nome = nomeInput.value.trim();
+        const foto = previewImg.src;
+
+        if (!nome) {
+            alert("Digite seu nome!");
+            return;
+        }
+
+        const emailLogado = localStorage.getItem("usuarioLogado");
+        const user = JSON.parse(localStorage.getItem(emailLogado));
+
+        user.nome = nome;
+        user.foto = foto;
+
+        localStorage.setItem(emailLogado, JSON.stringify(user));
+
+        alert("✅ Perfil salvo com sucesso!");
+        window.location.href = "menu.html";
+    }
+</script>
+
+</body>
+</html>
