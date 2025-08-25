@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ranking - Ecoltarema</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #2a7b7b;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #2a7b7b;
+      color: white;
+    }
+    tr:hover {
+      background: #f1f1f1;
+    }
+    .medalha {
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>🏆 Ranking de Doadores</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Posição</th>
+        <th>Doador</th>
+        <th>Pontos</th>
+      </tr>
+    </thead>
+    <tbody id="rankingTable"></tbody>
+  </table>
+
+  <script>
+    function carregarRanking() {
+      let ranking = JSON.parse(localStorage.getItem("ranking")) || {};
+      let rankingArray = Object.entries(ranking);
+
+      // Ordenar do maior para o menor
+      rankingArray.sort((a, b) => b[1] - a[1]);
+
+      let tbody = document.getElementById("rankingTable");
+      tbody.innerHTML = "";
+
+      rankingArray.forEach((item, index) => {
+        let medalha = "";
+        if (index === 0) medalha = "🥇";
+        else if (index === 1) medalha = "🥈";
+        else if (index === 2) medalha = "🥉";
+
+        let row = `<tr>
+          <td class="medalha">${medalha || index + 1}</td>
+          <td>${item[0]}</td>
+          <td>${item[1]} pts</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    carregarRanking();
+  </script>
+</body>
+</html>

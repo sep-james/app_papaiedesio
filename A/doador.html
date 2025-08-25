@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tela do Doador - Ecoltarema</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+* { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+body {
+  min-height: 100vh; background: linear-gradient(135deg, #1db954, #1aa34a);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.container {
+  background: #f4fef5; border-radius: 20px; padding: 20px 30px 40px 30px;
+  max-width: 480px; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  text-align: center; animation: fadeInUp 1s ease;
+}
+@keyframes fadeInUp { from {opacity:0; transform:translateY(30px);} to {opacity:1; transform:translateY(0);} }
+h1 { font-weight: 600; color: #222; margin-bottom: 15px; font-size: 28px; }
+#usuarioInfo { color: #444; font-size: 16px; margin-bottom: 20px; word-wrap: break-word; }
+label { font-weight: 600; color: #333; display: block; margin-top: 15px; margin-bottom: 6px; text-align: left; }
+select, input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ccc; margin-bottom: 10px; font-size: 15px; }
+button {
+  background: #1db954; color: white; border: none; border-radius: 12px;
+  padding: 14px 20px; font-size: 16px; font-weight: 600;
+  cursor: pointer; margin: 8px 0; width: 100%; transition: background 0.3s;
+}
+button:hover { background: #17a44d; }
+#map { height: 250px; width: 100%; border-radius: 15px; margin-top: 15px; margin-bottom: 15px; }
+ul { list-style: none; padding: 0; margin-top: 15px; }
+li { background: #e6f4e9; padding: 12px; border-radius: 8px; margin-bottom: 10px; text-align:left; }
+li button { margin-top: 5px; background:#1db954; color:#fff; border:none; border-radius:6px; padding:6px 10px; }
+li button:hover { background:#17a44d; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Tela do Doador</h1>
+  <p id="usuarioInfo">Carregando...</p>
+
+  <label for="tipoReciclavel">Tipo de Reciclável</label>
+  <select id="tipoReciclavel">
+    <option value="">Selecione</option>
+    <option value="Plástico">Plástico</option>
+    <option value="Vidro">Vidro</option>
+    <option value="Papel">Papel</option>
+    <option value="Metal">Metal</option>
+    <option value="Eletrônico">Eletrônico</option>
+  </select>
+
+  <label for="tipoQuantidade">Doar por</label>
+  <select id="tipoQuantidade" onchange="atualizarPlaceholderQuantidade()">
+    <option value="quilo" selected>Quilo (kg)</option>
+    <option value="unidade">Unidade</option>
+  </select>
+
+  <label for="quantidade">Quantidade</label>
+  <input type="number" id="quantidade" min="0.01" step="0.01" placeholder="Digite a quantidade em kg">
+
+  <label for="localizacao">Localização</label>
+  <input type="text" id="localizacao" placeholder="Digite seu endereço ou bairro">
+
+  <div id="map"></div>
+
+  <button onclick="enviarDoacao()">Registrar Doação</button>
+  <button onclick="irPara('menu.html')">Voltar ao Menu</button>
+  <button onclick="irPara('ranking.html')">Ver Ranking</button>
+
+  <h3 style="margin-top:20px;">Minhas Doações</h3>
+  <ul id="minhasDoacoes">Carregando...</ul>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let email = localStorage.getItem("usuarioLogado") || sessionStorage.getItem("usuarioLogado");
+let usuario = email ? JSON.parse(localStorage.getItem(email)) : null;
+
+if(!usuario) { window.location.href = "login.html"; }
+else { document.getElementById("usuarioInfo").innerText = `Logado como: ${usuario.email} | Tipo: ${usuario.tipo}`; }
+
+function irPara(pagina) { window.location.href = pagina; }
+
+let map = L.map('map').setView([-15.7801, -47.9292], 4);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+
+let marcadorDoador = null;
+async function pegarEndereco(lat, lon) {
+  try { const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
+    const data = await res.json(); return data.display_name||""; }
+  catch(err) { console.error("Erro geocodificação:",err); return ""; }
+}
+function atualizarLocalizacaoDoador() {
+  if(!navigator.geolocation){ alert("Geolocalização não suportada."); return; }
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const lat = pos.coords.latitude, lon = pos.coords.longitude;
+    if(marcadorDoador) marcadorDoador.setLatLng([lat, lon]);
+    else marcadorDoador = L.marker([lat, lon], {title:"Sua localização (Doador)"}).addTo(map);
+    map.setView([lat, lon],13);
+    const endereco = await pegarEndereco(lat, lon);
+    if(endereco) document.getElementById("localizacao").value = endereco;
+  });
+}
+atualizarLocalizacaoDoador();
+
+function atualizarPlaceholderQuantidade(){
+  const tipoQuant = document.getElementById("tipoQuantidade").value;
+  const inputQtd = document.getElementById("quantidade");
+  if(tipoQuant==="quilo"){ inputQtd.placeholder="Digite a quantidade em kg"; inputQtd.step="0.01"; inputQtd.min="0.01"; }
+  else { inputQtd.placeholder="Digite a quantidade em unidades"; inputQtd.step="1"; inputQtd.min="1"; }
+}
+
+function enviarDoacao(){
+  let tipo = document.getElementById("tipoReciclavel").value;
+  let tipoQuantidade = document.getElementById("tipoQuantidade").value;
+  let quantidade = parseFloat(document.getElementById("quantidade").value);
+  let localizacao = document.getElementById("localizacao").value;
+
+  if(!tipo || !tipoQuantidade || !quantidade || !localizacao){ alert("Preencha todos os campos."); return; }
+  if(tipoQuantidade==="quilo" && (isNaN(quantidade)||quantidade<=0)){ alert("Quantidade inválida (kg)."); return; }
+  if(tipoQuantidade==="unidade" && (!Number.isInteger(quantidade)||quantidade<1)){ alert("Quantidade inválida (unidade)."); return; }
+
+  let doacoes = JSON.parse(localStorage.getItem("doacoes"))||[];
+  doacoes.push({ tipo, tipoQuantidade, quantidade, localizacao, doador:usuario.email, status:"Pendente" });
+  localStorage.setItem("doacoes", JSON.stringify(doacoes));
+
+  alert("Doação registrada! Aguarde a confirmação do coletor.");
+  carregarMinhasDoacoes();
+
+  document.getElementById("tipoReciclavel").value="";
+  document.getElementById("tipoQuantidade").value="quilo"; atualizarPlaceholderQuantidade();
+  document.getElementById("quantidade").value=""; document.getElementById("localizacao").value="";
+}
+
+// Função para o doador confirmar que entregou
+function confirmarEntrega(index){
+  let doacoes = JSON.parse(localStorage.getItem("doacoes"))||[];
+  if(doacoes[index].status!=="Aceita"){ alert("O coletor ainda não aceitou."); return; }
+  if(confirm("O coletor pegou sua doação?")){
+    doacoes[index].status="Entregue";
+    localStorage.setItem("doacoes", JSON.stringify(doacoes));
+    alert("Entrega confirmada! Agora o coletor deve validar se está correta.");
+    carregarMinhasDoacoes();
+  }
+}
+
+function carregarMinhasDoacoes(){
+  let doacoes = JSON.parse(localStorage.getItem("doacoes"))||[];
+  let minhas = doacoes.filter(d=>d.doador===usuario.email);
+  let lista=document.getElementById("minhasDoacoes");
+  lista.innerHTML="";
+  if(minhas.length===0){ lista.innerHTML="<li>Nenhuma doação registrada.</li>"; return; }
+  minhas.forEach((d,i)=>{
+    let li=document.createElement("li");
+    li.innerHTML=`
+      <b>${d.tipo}</b> - ${d.quantidade} ${d.tipoQuantidade==="quilo"?"kg":"unidades"}<br>
+      <b>Status:</b> ${d.status}<br>
+      ${d.status==="Aceita" ? `<button onclick="confirmarEntrega(${doacoes.indexOf(d)})">Confirmar Entrega</button>`:""}
+    `;
+    lista.appendChild(li);
+  });
+}
+
+carregarMinhasDoacoes();
+</script>
+</body>
+</html>

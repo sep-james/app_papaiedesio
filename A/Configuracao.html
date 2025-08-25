@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configuração - Ecoltarema</title>
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        padding: 20px;
+        margin: 0;
+        background-color: white;
+        color: black;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    h2 {
+        text-align: center;
+        color: #2e7d32;
+        font-size: 2rem;
+        margin-bottom: 20px;
+        animation: fadeInDown 0.5s ease;
+    }
+
+    .config-container {
+        max-width: 420px;
+        margin: auto;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        animation: fadeInUp 0.6s ease;
+    }
+
+    label {
+        display: block;
+        margin-top: 15px;
+        font-weight: bold;
+        font-size: 0.95rem;
+    }
+
+    input, select, button {
+        padding: 12px;
+        margin-top: 5px;
+        width: 100%;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus {
+        border-color: #2e7d32;
+        box-shadow: 0 0 5px rgba(46,125,50,0.5);
+        outline: none;
+    }
+
+    button {
+        background-color: #2e7d32;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 15px;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+    button:hover {
+        background-color: #1b4d23;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .danger {
+        background-color: #c62828;
+    }
+
+    .danger:hover {
+        background-color: #8e0000;
+    }
+
+    /* Animações */
+    @keyframes fadeInUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeInDown {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Tema escuro */
+    body.escuro {
+        background-color: #121212;
+        color: #e0e0e0;
+    }
+    body.escuro .config-container {
+        background: rgba(30, 30, 30, 0.95);
+    }
+    body.escuro input, 
+    body.escuro select {
+        background: #1e1e1e;
+        color: white;
+        border-color: #444;
+    }
+</style>
+</head>
+<body>
+
+<h2>⚙ Configurações</h2>
+<div class="config-container">
+
+    <label for="temaSelect">🎨 Tema:</label>
+    <select id="temaSelect">
+        <option value="claro">Claro</option>
+        <option value="escuro">Escuro</option>
+    </select>
+
+    <label for="senhaInput">🔑 Alterar senha:</label>
+    <input type="password" id="senhaInput" placeholder="Digite a nova senha">
+
+    <button onclick="salvarConfiguracoes()">💾 Salvar Configurações</button>
+    <button class="danger" onclick="limparDados()">🗑 Limpar dados do usuário</button>
+    <button onclick="window.location.href='menu.html'">⬅ Voltar ao Menu</button>
+
+</div>
+
+<script>
+    const temaSelect = document.getElementById('temaSelect');
+
+    // Carregar configurações salvas
+    window.onload = function() {
+        const tema = localStorage.getItem('tema');
+        if (tema) {
+            temaSelect.value = tema;
+            aplicarTema(tema);
+        }
+    }
+
+    // Aplicar tema
+    function aplicarTema(tema) {
+        document.body.classList.toggle('escuro', tema === 'escuro');
+    }
+
+    // Salvar configurações
+    function salvarConfiguracoes() {
+        const tema = temaSelect.value;
+        localStorage.setItem('tema', tema);
+        aplicarTema(tema);
+        alert("✅ Configurações salvas!");
+    }
+
+    // Limpar dados
+    function limparDados() {
+        if (confirm("Tem certeza que deseja apagar seu nome e foto?")) {
+            localStorage.removeItem('nomePerfil');
+            localStorage.removeItem('fotoPerfil');
+            alert("🗑 Dados apagados!");
+        }
+    }
+</script>
+
+</body>
+</html>

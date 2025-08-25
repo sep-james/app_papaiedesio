@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Notificações - Ecoltarema</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+    header {
+        background-color: #2e7d32;
+        color: white;
+        padding: 15px 20px;
+        font-size: 22px;
+        font-weight: bold;
+        text-align: center;
+    }
+    main {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+    }
+    .notificacao {
+        background-color: white;
+        border-radius: 8px;
+        padding: 15px 20px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        font-size: 16px;
+        color: #333;
+    }
+    .btn-voltar {
+        background-color: #2e7d32;
+        color: white;
+        border: none;
+        padding: 15px 0;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        border-radius: 0 0 8px 8px;
+        transition: background-color 0.3s ease;
+    }
+    .btn-voltar:hover {
+        background-color: #27662a;
+    }
+    /* Scrollbar fina */
+    main::-webkit-scrollbar {
+        width: 8px;
+    }
+    main::-webkit-scrollbar-thumb {
+        background-color: #2e7d32;
+        border-radius: 4px;
+    }
+</style>
+</head>
+<body>
+<header>Notificações</header>
+
+<main id="listaNotificacoes">
+    <!-- Notificações aparecerão aqui -->
+</main>
+
+<button class="btn-voltar" onclick="voltarMenu()">Voltar ao Menu</button>
+
+<script>
+    // Função para adicionar notificação
+    function adicionarNotificacao(mensagem) {
+        let notificacoes = JSON.parse(localStorage.getItem('notificacoes')) || [];
+        notificacoes.push(mensagem);
+        localStorage.setItem('notificacoes', JSON.stringify(notificacoes));
+        mostrarNotificacoes();
+    }
+
+    // Função para mostrar notificações
+    function mostrarNotificacoes() {
+        const lista = document.getElementById('listaNotificacoes');
+        lista.innerHTML = '';
+        const notificacoes = JSON.parse(localStorage.getItem('notificacoes')) || [];
+        notificacoes.forEach(texto => {
+            const div = document.createElement('div');
+            div.className = 'notificacao';
+            div.textContent = texto;
+            lista.appendChild(div);
+        });
+    }
+
+    // Exemplo de integração com eventos reais:
+    // Aqui você deve chamar estas funções a partir do seu backend ou lógica do app
+    function eventoDoacaoRegistrada(detalhes) {
+        adicionarNotificacao(`Você registrou uma nova doação: ${detalhes}`);
+    }
+
+    function eventoColetaAceita(detalhes) {
+        adicionarNotificacao(`Seu item de doação foi aceito pelo coletor: ${detalhes}`);
+    }
+
+    // Mostra notificações ao carregar a página
+    mostrarNotificacoes();
+
+    function voltarMenu() {
+        window.location.href = 'menu.html';
+    }
+
+    // Exemplo: você pode usar WebSockets ou fetch para receber eventos do servidor e chamar:
+    // eventoDoacaoRegistrada("3 garrafas PET")
+    // eventoColetaAceita("Coleta marcada para amanhã às 8h")
+</script>
+</body>
+</html>

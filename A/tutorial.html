@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recicle+</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background-color: #ffffff;
+      color: #1db954;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1db954;
+    }
+
+    .logo span {
+      background: #1db954;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 10px;
+      margin-right: 8px;
+    }
+
+    .skip {
+      color: #ff7a00;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .conteudo {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 0.5s forwards;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .conteudo img {
+      width: 80%;
+      max-width: 320px;
+      margin-bottom: 40px;
+      transition: transform 0.3s ease;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 18px;
+      color: #1db954;
+    }
+
+    p {
+      font-size: 20px;
+      color: #ff7a00;
+      max-width: 320px;
+      line-height: 1.6;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: #ddd;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      background: #1db954;
+      width: 20px;
+      border-radius: 10px;
+    }
+
+    .botao-proximo {
+      background: linear-gradient(135deg, #1db954, #ff7a00);
+      border: none;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: transform 0.2s ease;
+    }
+
+    .botao-proximo:hover {
+      transform: scale(1.05);
+    }
+
+    .botao-proximo svg {
+      width: 26px;
+      height: 26px;
+      fill: white;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 24px; }
+      p { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<audio id="audio-avancar" preload="auto">
+  <source src="https://www.soundjay.com/buttons/sounds/button-3.mp3" type="audio/mpeg">
+</audio>
+
+<div class="app">
+  <div class="topo">
+    <div class="logo"><span>♻</span>Recicle+</div>
+    <div class="skip" onclick="irParaLogin()">Pular</div>
+  </div>
+
+  <div class="conteudo" id="conteudo">
+    <img id="imagem" src="" alt="Ilustração"/>
+    <h1 id="titulo">Carregando...</h1>
+    <p id="descricao">...</p>
+  </div>
+
+  <div class="footer">
+    <div class="dots">
+      <div class="dot active"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <button class="botao-proximo" onclick="proximoSlide()">
+      <svg viewBox="0 0 20 20"><path d="M7 5l5 5-5 5V5z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  const slides = [
+    {
+      titulo: "🌍 Bem-vindo ao Recicle+",
+      descricao: "Um jeito moderno e eficiente de ajudar o planeta com reciclagem.",
+      imagem: "https://cdn-icons-png.flaticon.com/512/3607/3607444.png"
+    },
+    {
+      titulo: "🧤 Doe com Facilidade",
+      descricao: "Cadastre seus recicláveis e agende a coleta diretamente pelo app.",
+      imagem: "https://img.freepik.com/vetores-gratis/sinal-de-reciclagem-verde-ao-redor-da-terra_78370-848.jpg"
+    },
+    {
+      titulo: "🚛 Colete com Propósito",
+      descricao: "Ajude a coletar doações, ganhe pontos e faça parte da mudança.",
+      imagem: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJIPhqhxbIbFsfXLX6x8bHrn4WlxIFjinT31RMPM4Upa1CgXWOx_SQS5oxI4OLaVFk6NE&usqp=CAU"
+    },
+    {
+      titulo: "✨ Pronto para Começar?",
+      descricao: "Entre agora e aproveite tudo que o Recicle+ tem para oferecer.",
+      imagem: "logo.jpg"
+    }
+  ];
+
+  let index = 0;
+  const titulo = document.getElementById("titulo");
+  const descricao = document.getElementById("descricao");
+  const imagem = document.getElementById("imagem");
+  const dots = document.querySelectorAll(".dot");
+  const conteudo = document.getElementById("conteudo");
+  const som = document.getElementById("audio-avancar");
+
+  function atualizarSlide() {
+    const slide = slides[index];
+
+    // Reiniciar animação
+    conteudo.style.animation = "none";
+    void conteudo.offsetWidth; // forçar reflow
+    conteudo.style.animation = "fadeIn 0.5s forwards";
+
+    titulo.textContent = slide.titulo;
+    descricao.textContent = slide.descricao;
+    imagem.src = slide.imagem;
+
+    dots.forEach((dot, i) => {
+      dot.classList.toggle("active", i === index);
+    });
+  }
+
+  function proximoSlide() {
+    som.play();
+    index++;
+    if (index < slides.length) {
+      atualizarSlide();
+    } else {
+      irParaLogin();
+    }
+  }
+
+  function irParaLogin() {
+    window.location.href = "login.html"; // Altere para a sua rota real
+  }
+
+  // Inicializa primeiro slide
+  window.onload = atualizarSlide;
+</script>
+
+</body>
+</html>

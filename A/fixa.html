@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Doação Fixa - Ecoltarema</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #1db954, #1aa34a);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #f4fef5;
+            border-radius: 25px;
+            padding: 20px 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            color: #222;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+            font-size: 15px;
+        }
+
+        button {
+            background: #1db954;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #17a44d;
+        }
+
+        #map {
+            width: 100%;
+            height: 350px;
+            border-radius: 20px;
+            margin: 10px 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .bottom-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Doação Fixa</h1>
+        <p id="usuarioInfo">Carregando...</p>
+
+        <!-- Mapa -->
+        <div id="map"></div>
+
+        <!-- Campos de doação -->
+        <label for="tipoReciclavel">Tipo de Reciclável</label>
+        <select id="tipoReciclavel">
+            <option value="">Selecione</option>
+            <option value="Plástico">Plástico</option>
+            <option value="Vidro">Vidro</option>
+            <option value="Papel">Papel</option>
+            <option value="Metal">Metal</option>
+            <option value="Eletrônico">Eletrônico</option>
+        </select>
+
+        <label for="tipoQuantidade">Doar por</label>
+        <select id="tipoQuantidade" onchange="atualizarPlaceholderQuantidade()">
+            <option value="quilo" selected>Quilo (kg)</option>
+            <option value="unidade">Unidade</option>
+        </select>
+
+        <label for="quantidade">Quantidade</label>
+        <input type="number" id="quantidade" min="0.01" step="0.01" placeholder="Digite a quantidade em kg" />
+
+        <!-- Botões embaixo do mapa e campos -->
+        <div class="bottom-buttons">
+            <button onclick="window.location.href='lerQR.html'">📷 Ler QR Code</button>
+            <button onclick="enviarDoacao()">Registrar Doação</button>
+            <button onclick="window.location.href='menu.html'">Voltar ao Menu</button>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // --- Dados do usuário ---
+        let email = localStorage.getItem("usuarioLogado") || sessionStorage.getItem("usuarioLogado");
+        let usuario = email ? JSON.parse(localStorage.getItem(email)) : null;
+        let qrConfirmado = localStorage.getItem("qrConfirmado") ? true : false;
+
+        if (!usuario) {
+            window.location.href = "login.html";
+        } else {
+            document.getElementById("usuarioInfo").innerText =
+                `Logado como: ${usuario.email} | Tipo: ${usuario.tipo}`;
+        }
+
+        function atualizarPlaceholderQuantidade() {
+            const tipoQuant = document.getElementById("tipoQuantidade").value;
+            const inputQtd = document.getElementById("quantidade");
+
+            if (tipoQuant === "quilo") {
+                inputQtd.placeholder = "Digite a quantidade em kg";
+                inputQtd.step = "0.01";
+                inputQtd.min = "0.01";
+            } else {
+                inputQtd.placeholder = "Digite a quantidade em unidades";
+                inputQtd.step = "1";
+                inputQtd.min = "1";
+            }
+        }
+
+        function enviarDoacao() {
+            let tipo = document.getElementById("tipoReciclavel").value;
+            let tipoQuantidade = document.getElementById("tipoQuantidade").value;
+            let quantidade = parseFloat(document.getElementById("quantidade").value);
+
+            if (!tipo || !tipoQuantidade || !quantidade) {
+                alert("Preencha todos os campos.");
+                return;
+            }
+
+            if (!qrConfirmado) {
+                alert("Você precisa confirmar a doação lendo o QR Code.");
+                return;
+            }
+
+            let doacoes = JSON.parse(localStorage.getItem("doacoes")) || [];
+
+            doacoes.push({
+                tipo,
+                tipoQuantidade,
+                quantidade,
+                doador: usuario.email,
+                status: "Confirmada"
+            });
+
+            localStorage.setItem("doacoes", JSON.stringify(doacoes));
+            localStorage.removeItem("qrConfirmado");
+
+            alert("Doação registrada com sucesso!");
+            window.location.href = "menu.html";
+        }
+
+        // --- Configuração do Mapa ---
+        const map = L.map('map').setView([-3.854, -39.565], 13); // Exemplo: Itarema-CE
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Pontos de coleta fixos
+        const coletasFixas = [
+            { nome: "Ponto de Coleta Central", lat: -3.855, lng: -39.565 },
+            { nome: "Escola Municipal", lat: -3.852, lng: -39.562 },
+            { nome: "Praça da Cidade", lat: -3.857, lng: -39.570 }
+        ];
+
+        coletasFixas.forEach(ponto => {
+            L.marker([ponto.lat, ponto.lng])
+                .addTo(map)
+                .bindPopup(`<b>${ponto.nome}</b>`);
+        });
+    </script>
+</body>
+</html>
